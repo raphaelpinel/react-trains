@@ -2,6 +2,23 @@ import React from 'react';
 import Select, { createFilter } from 'react-select';
 import './SearchBar.css';
 
+const brandColor = '#59A127';
+const customStyles = {
+  control: (base, state) => ({
+    ...base,
+    boxShadow: state.isFocused ? 0 : 0,
+    borderColor: state.isFocused
+      ? brandColor
+      : base.borderColor,
+    boxShadow: state.isFocused ? null : null,
+    '&:hover': {
+      borderColor: state.isFocused
+        ? brandColor
+        : base.borderColor,
+    }
+  }),
+};
+
 const SearchBar = props => (
       <div className="SearchBar">
           <Select 
@@ -14,6 +31,7 @@ const SearchBar = props => (
                 ignoreCase: true, ignoreAccents: false, matchFrom: 'start' 
               })
             }
+            styles={customStyles}
           />
       </div>
     );
