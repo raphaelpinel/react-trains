@@ -11,7 +11,7 @@ const DataDisplay = props => {
     props.display === 'arrival' ? filteredData = props.filteredData.filter(element => typeof(element.scheduledArrivalTime) !== 'undefined').sort((a, b) => (a.scheduledArrivalTime > b.scheduledArrivalTime) ? 1 : -1) : filteredData = props.filteredData.filter(element => typeof(element.scheduledDepartureTime) !== 'undefined').sort((a, b) => (a.scheduledDepartureTime > b.scheduledDepartureTime) ? 1 : -1);
     console.log('TCL: filteredData', filteredData);
     const data = filteredData.map( train => (
-    <tr key={train.trainNumber}>
+    <tr key={(props.display === 'arrival') ? train.trainNumber + '_' + train.scheduledArrivalTime : train.trainNumber + '_' + train.scheduledDepartureTime}>
         <td>{train.trainNumber}</td>
         <td>{train.origin}</td>
         <td>{train.destination}</td>

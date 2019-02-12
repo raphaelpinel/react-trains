@@ -79,7 +79,7 @@ class App extends Component {
     const dateTimeNow = new Date().toJSON(); 
     const { todaysTrains, stations } = this.state;
     const filteredData = todaysTrains.map((train => {
-      const trainNumber = train.trainType + ' ' + train.trainNumber;
+      const trainNumber = train.commuterLineID ? `Commuter train ${train.commuterLineID}` : `${train.trainType} ${train.trainNumber}`;
       const originShortCode = train.timeTableRows[0].stationShortCode;
       const origin = stations.find(station => station.value === originShortCode).label;
       const destinationShortCode = train.timeTableRows[train.timeTableRows.length - 1]['stationShortCode'];
