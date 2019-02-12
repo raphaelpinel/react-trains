@@ -4,7 +4,10 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import './App.css';
 import Header from './components/Header/Header';
 import SearchBar from './components/SearchBar/SearchBar';
+import WithLoading from './hoc/withLoading';
 import DataDisplay from './components/DataDisplay/DataDisplay';
+
+const DataDisplayWithLoading = WithLoading(DataDisplay);
 
 const API = 'https://rata.digitraffic.fi/api/v1/';
 
@@ -12,13 +15,14 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      isLoading:true,
-      stations: [],
-      passengerStations: [],
+      isLoaded: false,
+      error: null,
+      stations: [], //sometimes needed as origin or destination
+      passengerStations: [], //used for displaying suggestions in search input
       todaysTrains: [],
       selectedStation: null,
       filteredData: [],
-      tabIndex: 0
+      tabIndex: 0 // 0 = arrivals, 1 = departures
     }
   }
 
@@ -26,14 +30,12 @@ class App extends Component {
     this.setState({
       selectedStation
     });
-    if (selectedStation && this.state.isLoading === false) {
-      this.fetchAndFilterData(selectedStation);
-      //this.filterData2(selectedStation);
+    if (selectedStation) {
+      this.filterData(selectedStation);
     }
   }
 
   componentDidMount() {
-    this.setState({ isLoading: true });
     this.fetchStations();
     this.fetchTodaysTrains();
   }
@@ -41,54 +43,47 @@ class App extends Component {
   fetchStations() {
     fetch(`${API}metadata/stations`)
     .then(response => response.json())
-    .then(data => {
-		console.log('TCL: App -> fetchStations -> data', data);
-    
-      const stations = data.map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
-      const passengerStations = data.filter(station => station.passengerTraffic === true).map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
-      this.setState({ stations, passengerStations, isLoading: false });  
-    })
-    .catch(error => console.log('parsing failed', error)
-    );
+    .then(
+      data => {
+        const stations = data.map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
+        const passengerStations = data.filter(station => station.passengerTraffic === true).map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
+        this.setState({ stations, passengerStations });  
+      }, 
+      error => {
+        this.setState({
+          error
+        });
+      }
+    )
   }
 
   fetchTodaysTrains() {
-    this.setState({ isLoading: true});
     const dateNow = new Date().toISOString().slice(0, 10);
     fetch(`${API}trains/${dateNow}`)
     .then(response => response.json())
-    .then(data => {
-      console.log('TCL: App -> fetchTodaysTrains -> data', data);
-      this.setState({todaysTrains: data, isLoading: true})
-    })
-    .catch(error => console.log(error));
+    .then(
+      data => {
+        console.log('TCL: App -> fetchTodaysTrains -> data', data);
+        this.setState({ todaysTrains: data, isLoaded: true });
+      },
+      error => {
+        this.setState({
+          isLoaded: true,
+          error
+        });
+      }
+    )   
   }
 
-  filterData2(selectedStation) {
-    const data = [];//this.state.todaysTrains;
-    // const filteredData = data.filter(train => train.timeTableRows.filter(timeEntry => timeEntry.stationShortCode === selectedStation.value));
-    const filteredData = data.map(train => train.filter(train.timeTableRows.filter(timeEntry => timeEntry.stationShortCode === selectedStation.value)));
-		console.log('TCL: App -> filteredData', filteredData);
-    
-  }
-  
-  formatTime(dateTime) {
-    return new Intl.DateTimeFormat('fi-FI', { hour: 'numeric', minute: 'numeric'}).format(new Date(dateTime.toString()));
-  }
-
-  fetchAndFilterData(selectedStation) { 
+  filterData(selectedStation) { 
     const dateTimeNow = new Date().toJSON(); 
-    const data = this.state.todaysTrains;
-    //fetch(`${API}live-trains/station/${selectedStation.value}`)
-    //.then(response => response.json())
-    //.then(data => {
-    //console.log('TCL: fetchAndFilterData -> data', data);
-    const filteredData = data.map((train => {
+    const { todaysTrains, stations } = this.state;
+    const filteredData = todaysTrains.map((train => {
       const trainNumber = train.trainType + ' ' + train.trainNumber;
       const originShortCode = train.timeTableRows[0].stationShortCode;
-      const origin = this.state.stations.find(station => station.value === originShortCode).label;
+      const origin = stations.find(station => station.value === originShortCode).label;
       const destinationShortCode = train.timeTableRows[train.timeTableRows.length - 1]['stationShortCode'];
-      const destination = this.state.stations.find(station => station.value === destinationShortCode).label;
+      const destination = stations.find(station => station.value === destinationShortCode).label;
       
       let scheduledArrivalTime; // arrivals
       let actualArrivalTime;
@@ -98,11 +93,11 @@ class App extends Component {
           scheduledArrivalTime = arrivalTimeTable.scheduledTime;  
         }
         if(arrivalTimeTable.hasOwnProperty('actualTime')) {
-         actualArrivalTime =  arrivalTimeTable.actualTime;  
+          actualArrivalTime =  arrivalTimeTable.actualTime;  
         } else if (arrivalTimeTable.hasOwnProperty('liveEstimateTime')) {
-         actualArrivalTime = arrivalTimeTable.liveEstimateTime;
+          actualArrivalTime = arrivalTimeTable.liveEstimateTime;
         } else {
-         actualArrivalTime = false;
+          actualArrivalTime = false;
         }
       } 
       let scheduledDepartureTime; // departures
@@ -113,34 +108,24 @@ class App extends Component {
           scheduledDepartureTime = departureTimeTable.scheduledTime;
         }
         if(departureTimeTable.hasOwnProperty('actualTime')) {
-         actualDepartureTime =  departureTimeTable.actualTime;
+          actualDepartureTime =  departureTimeTable.actualTime;
         } else if (departureTimeTable.hasOwnProperty('liveEstimateTime')) {
-         actualDepartureTime = departureTimeTable.liveEstimateTime;
+          actualDepartureTime = departureTimeTable.liveEstimateTime;
         } else {
-         actualDepartureTime = false;
+          actualDepartureTime = false;
         }
       }
 
       return {...train, trainNumber, origin, destination, scheduledArrivalTime, actualArrivalTime,  scheduledDepartureTime, actualDepartureTime};
     }))
     .filter(train => train.trainCategory !== 'Cargo')
-    .filter(train => train.actualArrivalTime > dateTimeNow || train.scheduledArrivalTime > dateTimeNow || train.actualDepartureTime > dateTimeNow || train.scheduledDepartureTime > dateTimeNow)
-    ; 
-    
-    
-    console.log('TCL: App -> fetchAndFilterData -> dateTimeNow', dateTimeNow);
-
-    
-     
+    .filter(train => train.actualArrivalTime > dateTimeNow || train.scheduledArrivalTime > dateTimeNow || train.actualDepartureTime > dateTimeNow || train.scheduledDepartureTime > dateTimeNow);
     this.setState({filteredData});
-		console.log('TCL: App -> fetchAndFilterData -> filteredData', filteredData)
-    }
-    //)
-    //.catch(error => console.log('parsing failed', error)
-    //);
-  //}
+    console.log('TCL: App -> filterData -> filteredData', filteredData)
+  }
 
   render() {  
+    const { error, isLoaded, tabIndex, filteredData } = this.state;
     return (
       <div className="App">
         <Header title="Aseman junatiedot" />
@@ -150,21 +135,24 @@ class App extends Component {
         options={this.state.passengerStations} 
         onChange={this.handleInputChange} 
         />
-        <Tabs selectedIndex={this.state.tabIndex} onSelect={tabIndex => this.setState({ tabIndex })}>
+        <Tabs selectedIndex={tabIndex} onSelect={tabIndex => this.setState({ tabIndex })}>
           <TabList>
               <Tab>Saapuvat</Tab>
               <Tab>Lähtevät</Tab>
           </TabList>
           <TabPanel>
-            <DataDisplay  
+            <DataDisplayWithLoading
+            isLoaded={isLoaded} 
             display='arrival' 
-            filteredData={this.state.filteredData} 
+            filteredData={filteredData} 
             />   
+            <div className="error">{ error ? error.message : null }</div>
           </TabPanel>
           <TabPanel>
-            <DataDisplay  
+            <DataDisplayWithLoading 
+            isLoaded={isLoaded}  
             display='departure' 
-            filteredData={this.state.filteredData} 
+            filteredData={filteredData} 
             />   
           </TabPanel>
         </Tabs>

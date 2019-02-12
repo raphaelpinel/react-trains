@@ -1,6 +1,12 @@
 .App {
 font-size: 14px;
 }
+.error, .loading {
+  margin: 20px 10px;
+}
+.error {
+  color: red;
+}
 
 .react-tabs {
   -webkit-tap-highlight-color: transparent;
