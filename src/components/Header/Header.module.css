@@ -1,13 +1,14 @@
 .Header {
-    background: #679e14;
+    background: #59A127;
     color: white;
     height: 50px;
     text-align: left;
     vertical-align: middle;
     padding: 15px 15px 15px 45px;
     box-sizing: border-box;
-}
-
-.title {
-
+    width: 100%;
+    min-width: 500px;
+    -webkit-box-shadow: 0px 3px 8px 0px rgba(0,0,0,0.36);
+    -moz-box-shadow: 0px 3px 8px 0px rgba(0,0,0,0.36);
+    box-shadow: 0px 3px 8px 0px rgba(0,0,0,0.36);
 }
