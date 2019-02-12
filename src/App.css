@@ -1,13 +1,15 @@
 .App {
 font-size: 14px;
 }
-.error, .loading {
+/* for displaying error or loading message */
+.error, .loading { 
   margin: 20px 10px;
 }
 .error {
   color: red;
 }
 
+/* all react-tabs code was copied from node_modules/react-tabs/react-tabs.css then overridden and edited here */
 .react-tabs {
   -webkit-tap-highlight-color: transparent;
   margin-left: 30px;
