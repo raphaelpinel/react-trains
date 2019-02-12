@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+// import 'react-tabs/style/react-tabs.css';
 import './App.css';
 import Header from './components/Header/Header';
 import SearchBar from './components/SearchBar/SearchBar';
@@ -15,7 +17,7 @@ class App extends Component {
       passengerStations: [],
       selectedStation: null,
       filteredData: [],
-      display: 'arrival'
+      tabIndex: 0
     }
   }
 
@@ -111,10 +113,24 @@ class App extends Component {
         options={this.state.passengerStations} 
         onChange={this.handleInputChange} 
         />
-        <DataDisplay  
-        display={this.state.display} 
-        filteredData={this.state.filteredData} 
-        />
+        <Tabs selectedIndex={this.state.tabIndex} onSelect={tabIndex => this.setState({ tabIndex })}>
+          <TabList>
+              <Tab>Saapuvat</Tab>
+              <Tab>Lähtevät</Tab>
+          </TabList>
+          <TabPanel>
+            <DataDisplay  
+            display='arrival' 
+            filteredData={this.state.filteredData} 
+            />   
+          </TabPanel>
+          <TabPanel>
+            <DataDisplay  
+            display='departure' 
+            filteredData={this.state.filteredData} 
+            />   
+          </TabPanel>
+        </Tabs>
       </div>
     );
   }
