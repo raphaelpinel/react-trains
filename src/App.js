@@ -72,9 +72,9 @@ class App extends Component {
           scheduledArrivalTime = this.formatTime(arrivalTimeTable.scheduledTime);  
         }
         if(arrivalTimeTable.hasOwnProperty('actualTime')) {
-         actualArrivalTime =  arrivalTimeTable.actualTime;  
+         actualArrivalTime =  this.formatTime(arrivalTimeTable.actualTime);  
         } else if (arrivalTimeTable.hasOwnProperty('liveEstimateTime')) {
-         actualArrivalTime = arrivalTimeTable.liveEstimateTime;
+         actualArrivalTime = this.formatTime(arrivalTimeTable.liveEstimateTime);
         } else {
          actualArrivalTime = false;
         }
@@ -84,11 +84,13 @@ class App extends Component {
       const departureTimeTable = {...train.timeTableRows.filter(element => element.stationShortCode === selectedStation.value && element.type === 'DEPARTURE')[0]}
       
       if(departureTimeTable) {
-        scheduledDepartureTime = departureTimeTable.scheduledTime;
+        if (departureTimeTable.hasOwnProperty('scheduledTime')) {
+          scheduledDepartureTime = this.formatTime(departureTimeTable.scheduledTime);
+        }
         if(departureTimeTable.hasOwnProperty('actualTime')) {
-         actualDepartureTime =  departureTimeTable.actualTime;
+         actualDepartureTime =  this.formatTime(departureTimeTable.actualTime);
         } else if (departureTimeTable.hasOwnProperty('liveEstimateTime')) {
-         actualDepartureTime = departureTimeTable.liveEstimateTime;
+         actualDepartureTime = this.formatTime(departureTimeTable.liveEstimateTime);
         } else {
          actualDepartureTime = false;
         }
