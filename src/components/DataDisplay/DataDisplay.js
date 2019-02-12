@@ -25,11 +25,11 @@ const DataDisplay = props => {
     } 
     console.log('TCL: filteredData', filteredData);
     const data = filteredData.map( train => (
-    <tr key={(props.display === 'arrival') ? train.trainNumber + '_' + train.scheduledArrivalTime : train.trainNumber + '_' + train.scheduledDepartureTime}>
+    <tr key={(props.display === 'arrival') ? train.trainNumber + '_' + train.scheduledArrivalTime : train.trainNumber + '_' + train.scheduledDepartureTime} className={(train.cancelled) ? 'cancelled' : null}>
         <td>{train.trainNumber}</td>
         <td>{train.origin}</td>
         <td>{train.destination}</td>
-        <td>{train.time}</td>
+    <td>{train.time} {(train.cancelled) ? <span className="cancelled">Cancelled</span> : null}</td>
     </tr>));
     
     return (

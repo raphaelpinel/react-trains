@@ -33,3 +33,11 @@ span.under {
     display: block;
     font-size: 11px;
 }
+.cancelled {
+    color: #aaa;
+}
+span.cancelled {
+    color: red;
+    display: block;
+    font-size: 12px;
+}
