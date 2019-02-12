@@ -23,7 +23,6 @@ const DataDisplay = props => {
              <span className="under">({formatTime(train.scheduledDepartureTime)})</span></>) :
              formatTime(train.scheduledDepartureTime) }));;
     } 
-    console.log('TCL: filteredData', filteredData);
     const data = filteredData.map( train => (
     <tr key={(props.display === 'arrival') ? train.trainNumber + '_' + train.scheduledArrivalTime : train.trainNumber + '_' + train.scheduledDepartureTime} className={(train.cancelled) ? 'cancelled' : null}>
         <td>{train.trainNumber}</td>

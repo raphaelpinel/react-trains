@@ -63,7 +63,6 @@ class App extends Component {
     .then(response => response.json())
     .then(
       data => {
-        console.log('TCL: App -> fetchTodaysTrains -> data', data);
         this.setState({ todaysTrains: data, isLoaded: true });
       },
       error => {
@@ -121,7 +120,6 @@ class App extends Component {
     .filter(train => train.trainCategory !== 'Cargo')
     .filter(train => train.actualArrivalTime > dateTimeNow || train.scheduledArrivalTime > dateTimeNow || train.actualDepartureTime > dateTimeNow || train.scheduledDepartureTime > dateTimeNow);
     this.setState({filteredData});
-    console.log('TCL: App -> filterData -> filteredData', filteredData)
   }
 
   render() {  
