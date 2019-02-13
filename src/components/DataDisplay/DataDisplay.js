@@ -6,28 +6,15 @@ const formatTime = (dateTime) => { //returns a time in the correct timezone
   }
 
 const DataDisplay = props => {
-    let filteredData;
-    if (props.display === 'arrival') { 
-        filteredData = props.filteredData
-        .filter(element => typeof(element.scheduledArrivalTime) !== 'undefined') // filters out departures
-        .sort((a, b) => (a.scheduledArrivalTime > b.scheduledArrivalTime) ? 1 : -1) // sorting by time
-        .map(train => ({...train, time: (train.actualArrivalTime && formatTime(train.actualArrivalTime) !== formatTime(train.scheduledArrivalTime)) ?  //only if actual and scheduled arrival time differ, create special class (red) for actual time
-        (<><span className="red">{formatTime(train.actualArrivalTime)}</span>
-             <span className="under">({formatTime(train.scheduledArrivalTime)})</span></>) :
-             formatTime(train.scheduledArrivalTime) }));
-     } else { // for departures
-     filteredData = props.filteredData
-        .filter(element => typeof(element.scheduledDepartureTime) !== 'undefined') // filters out arrivals
-        .sort((a, b) => (a.scheduledDepartureTime > b.scheduledDepartureTime) ? 1 : -1) // sorting by time
-        .map(train => ({...train, time: (train.actualDepartureTime && formatTime(train.actualDepartureTime) !== formatTime(train.scheduledDepartureTime)) ?  //only if actual and scheduled departure time differ, special class (red) for actual time
-        (<><span className="red">{formatTime(train.actualDepartureTime)}</span>
-             <span className="under">({formatTime(train.scheduledDepartureTime)})</span></>) :
-             formatTime(train.scheduledDepartureTime) }));;
-    } 
-    const finalData = filteredData.map( train => (
+    const filteredData = props.filteredData
+        .sort((a, b) => (a.scheduledTime > b.scheduledTime) ? 1 : -1) // sorting by time
+        .map(train => ({...train, time: (train.actualTime && formatTime(train.actualTime) !== formatTime(train.scheduledTime)) ?  //only if actual and scheduled arrival time differ, create special class (red) for actual time
+        (<><span className="red">{formatTime(train.actualTime)}</span>
+             <span className="under">({formatTime(train.scheduledTime)})</span></>) :
+             formatTime(train.scheduledTime) }))
+        .map( train => (
     <tr 
-        key={(props.display === 'arrival') ? train.trainNumber + '_' + train.scheduledArrivalTime 
-                                            : train.trainNumber + '_' + train.scheduledDepartureTime} // added timestamps to avoid duplicate keys
+        key={ train.trainNumber + '_' + train.scheduledTime } // added timestamps to avoid duplicate keys
         className={(train.cancelled) ? 'cancelled' : null}>
             <td>{train.trainNumber}</td>
             <td>{train.origin}</td>
@@ -46,7 +33,7 @@ const DataDisplay = props => {
                 </tr>
             </thead>
             <tbody>
-            {finalData}
+            {filteredData}
             </tbody>
         </table>
     );

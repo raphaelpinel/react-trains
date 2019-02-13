@@ -22,6 +22,8 @@ class App extends Component {
       todaysTrains: [],
       selectedStation: null,
       filteredData: [],
+      arrivalData: [],
+      departureData: [],
       tabIndex: 0 // 0 = arrivals, 1 = departures
     }
   }
@@ -119,11 +121,24 @@ class App extends Component {
     }))
     .filter(train => train.trainCategory !== 'Cargo') // removes cargo entries
     .filter(train => train.actualArrivalTime > dateTimeNow || train.scheduledArrivalTime > dateTimeNow || train.actualDepartureTime > dateTimeNow || train.scheduledDepartureTime > dateTimeNow); // filters only time entries after "now"
-    this.setState({filteredData});
+    const arrivalData = filteredData.filter(entry => typeof entry.scheduledArrivalTime !== 'undefined')
+                                    .map(entry => ({
+                                      ...entry, 
+                                      actualTime: entry.actualArrivalTime, 
+                                      scheduledTime: entry.scheduledArrivalTime}));
+    const departureData = filteredData.filter(entry => typeof entry.scheduledDepartureTime !== 'undefined')
+                                      .map(entry => ({
+                                        ...entry, 
+                                        actualTime: entry.actualDepartureTime, 
+                                        scheduledTime: entry.scheduledDepartureTime}));
+		console.log('TCL: filterData -> filteredData', filteredData);
+    this.setState({ arrivalData, departureData });
+		console.log('TCL: filterData -> arrivalData', arrivalData);
+		console.log('TCL: filterData -> departureData', departureData);
   }
 
   render() {  
-    const { error, isLoaded, tabIndex, filteredData } = this.state;
+    const { error, isLoaded, tabIndex, arrivalData, departureData } = this.state;
     return (
       <div className="App">
         <Header title="Aseman junatiedot" />
@@ -142,7 +157,7 @@ class App extends Component {
             <DataDisplayWithLoading
             isLoaded={isLoaded} 
             display='arrival' 
-            filteredData={filteredData} 
+            filteredData={arrivalData} 
             />   
             <div className="error">{ error ? error.message : null }</div>
           </TabPanel>
@@ -150,7 +165,7 @@ class App extends Component {
             <DataDisplayWithLoading 
             isLoaded={isLoaded}  
             display='departure' 
-            filteredData={filteredData} 
+            filteredData={departureData} 
             />   
           </TabPanel>
         </Tabs>
