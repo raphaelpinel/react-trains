@@ -17,7 +17,7 @@ class App extends Component {
     this.state = {
       isLoaded: false,
       error: null,
-      stations: [], //sometimes needed as origin or destination
+      stations: [], // needed as sometimes origin or destination isn't a passenger station
       passengerStations: [], //used for displaying suggestions in search input
       todaysTrains: [],
       selectedStation: null,
@@ -44,7 +44,7 @@ class App extends Component {
     fetch(`${API}metadata/stations`)
     .then(response => response.json())
     .then(
-      data => {
+      data => { // the React Select component needs data in the format { value: xxx, label: yyy }
         const stations = data.map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
         const passengerStations = data.filter(station => station.passengerTraffic === true).map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
         this.setState({ stations, passengerStations });  
@@ -58,7 +58,7 @@ class App extends Component {
   }
 
   fetchTodaysTrains() {
-    const dateNow = new Date().toISOString().slice(0, 10);
+    const dateNow = new Date().toISOString().slice(0, 10); // format of type 2019-02-12
     fetch(`${API}trains/${dateNow}`)
     .then(response => response.json())
     .then(
@@ -78,9 +78,9 @@ class App extends Component {
     const dateTimeNow = new Date().toJSON(); 
     const { todaysTrains, stations } = this.state;
     const filteredData = todaysTrains.map((train => {
-      const trainNumber = train.commuterLineID ? `Commuter train ${train.commuterLineID}` : `${train.trainType} ${train.trainNumber}`;
-      const originShortCode = train.timeTableRows[0].stationShortCode;
-      const origin = stations.find(station => station.value === originShortCode).label;
+      const trainNumber = train.commuterLineID ? `Commuter train ${train.commuterLineID}` : `${train.trainType} ${train.trainNumber}`; //special case for Commuter trains who have their own ID
+      const originShortCode = train.timeTableRows[0].stationShortCode; // the origin (Lähtöasema) is the first entry in the timeTable
+      const origin = stations.find(station => station.value === originShortCode).label; // retrieves the full name of station by short code
       const destinationShortCode = train.timeTableRows[train.timeTableRows.length - 1]['stationShortCode'];
       const destination = stations.find(station => station.value === destinationShortCode).label;
       
@@ -117,8 +117,8 @@ class App extends Component {
 
       return {...train, trainNumber, origin, destination, scheduledArrivalTime, actualArrivalTime,  scheduledDepartureTime, actualDepartureTime};
     }))
-    .filter(train => train.trainCategory !== 'Cargo')
-    .filter(train => train.actualArrivalTime > dateTimeNow || train.scheduledArrivalTime > dateTimeNow || train.actualDepartureTime > dateTimeNow || train.scheduledDepartureTime > dateTimeNow);
+    .filter(train => train.trainCategory !== 'Cargo') // removes cargo entries
+    .filter(train => train.actualArrivalTime > dateTimeNow || train.scheduledArrivalTime > dateTimeNow || train.actualDepartureTime > dateTimeNow || train.scheduledDepartureTime > dateTimeNow); // filters only time entries after "now"
     this.setState({filteredData});
   }
 
