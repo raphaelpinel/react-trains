@@ -6,7 +6,6 @@ const brandColor = '#59A127';
 const customStyles = {
   control: (base, state) => ({
     ...base,
-    boxShadow: state.isFocused ? 0 : 0,
     borderColor: state.isFocused
       ? brandColor
       : base.borderColor,
