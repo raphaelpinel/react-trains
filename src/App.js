@@ -131,10 +131,7 @@ class App extends Component {
                                         ...entry, 
                                         actualTime: entry.actualDepartureTime, 
                                         scheduledTime: entry.scheduledDepartureTime}));
-		console.log('TCL: filterData -> filteredData', filteredData);
     this.setState({ arrivalData, departureData });
-		console.log('TCL: filterData -> arrivalData', arrivalData);
-		console.log('TCL: filterData -> departureData', departureData);
   }
 
   render() {  
