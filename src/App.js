@@ -43,6 +43,10 @@ class App extends Component {
     this.fetchTodaysTrains();
   }
 
+  componentDidUpdate() {
+    document.title = this.props.t('title');
+  }
+
   fetchStations() {
     fetch(`${API}metadata/stations`)
     .then(response => response.json())
