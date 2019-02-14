@@ -1,0 +1,15 @@
+{
+    "title": "Aseman junatiedot",
+    "Not found": "Ei löytetty",
+    "Arrivals": "Saapuvat",
+    "Departures": "Lähtevät",
+    "Arrival": "Saapuu",
+    "Departure": "Lähtee",
+    "Look for train station": "Hae aseman nimellä",
+    "Loading": "Ladataan",
+    "Train": "Juna",
+    "Origin": "Lähtöasema",
+    "Destination": "Pääteasema",
+    "Cancelled": "peruttu"
+
+}

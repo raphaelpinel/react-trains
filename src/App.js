@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 // import 'react-tabs/style/react-tabs.css';
+import { withTranslation } from 'react-i18next';
 import './App.css';
 import Header from './components/Header/Header';
 import SearchBar from './components/SearchBar/SearchBar';
@@ -136,19 +137,21 @@ class App extends Component {
 
   render() {  
     const { error, isLoaded, tabIndex, arrivalData, departureData } = this.state;
+    const { t, i18n } = this.props;
     return (
       <div className="App">
-        <Header title="Aseman junatiedot" />
+        <Header/>
         <SearchBar 
-        placeholder="Hae aseman nimellä"
-        noOptionsMessage={(inputValue) => "Ei löydetty"}
+        placeholder={t('Look for train station')}
+        noOptionsMessage={(inputValue) => 'Not found'}
         options={this.state.passengerStations} 
         onChange={this.handleInputChange} 
         />
         <Tabs selectedIndex={tabIndex} onSelect={tabIndex => this.setState({ tabIndex })}>
           <TabList>
-              <Tab>Saapuvat</Tab>
-              <Tab>Lähtevät</Tab>
+              {/* <Tab>Saapuvat</Tab> */}
+              <Tab>{t('Arrivals')}</Tab>
+              <Tab>{t('Departures')}</Tab>
           </TabList>
           <TabPanel>
             <DataDisplayWithLoading
@@ -171,4 +174,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withTranslation()(App);

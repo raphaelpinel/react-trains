@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './DataDisplay.css';
 
 const formatTime = (dateTime) => { //returns a time in the correct timezone
@@ -6,6 +7,7 @@ const formatTime = (dateTime) => { //returns a time in the correct timezone
   }
 
 const DataDisplay = props => {
+    const { t, i18n } = useTranslation();
     const filteredData = props.filteredData
         .sort((a, b) => (a.scheduledTime > b.scheduledTime) ? 1 : -1) // sorting by time
         .map(train => ({...train, time: (train.actualTime && formatTime(train.actualTime) !== formatTime(train.scheduledTime)) ?  //only if actual and scheduled arrival time differ, create special class (red) for actual time
@@ -19,17 +21,17 @@ const DataDisplay = props => {
             <td>{train.trainNumber}</td>
             <td>{train.origin}</td>
             <td>{train.destination}</td>
-            <td>{train.time} {(train.cancelled) ? <span className="cancelled">Cancelled</span> : null}</td>
+            <td>{train.time} {(train.cancelled) ? <span className="cancelled">{t('Cancelled')}</span> : null}</td>
     </tr>));
     
     return (
         <table className="DataDisplay">
             <thead>
                 <tr>
-                    <th>Juna</th>
-                    <th>Lähtöasema</th>
-                    <th>Pääteasema</th>
-                    <th>{(props.display === 'arrival') ? 'Saapuu' : 'Lähtee'}</th> 
+                    <th>{t('Train')}</th>
+                    <th>{t('Origin')}</th>
+                    <th>{t('Destination')}</th>
+                    <th>{(props.display === 'arrival') ? t('Arrival') : t('Departure')}</th> 
                 </tr>
             </thead>
             <tbody>

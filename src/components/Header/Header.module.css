@@ -22,12 +22,17 @@
 }
 
 .languageSwitcher {
-    text-align: right;
+    text-align: center;
     margin-right: 30px;
     /* margin: 2px 30px; */
     border: 2px solid white;
     padding: 5px;
     margin: 5px 30px 5px 5px;
     font-size: 12px;
+    width: 18px;
     cursor: pointer;
+}
+.languageSwitcher:hover {
+    color: #444;
+    border-color: #444;
 }
