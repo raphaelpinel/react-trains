@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-// import 'react-tabs/style/react-tabs.css';
 import { withTranslation } from 'react-i18next';
 import './App.css';
 import Header from './components/Header/Header';
@@ -22,19 +21,9 @@ class App extends Component {
       passengerStations: [], //used for displaying suggestions in search input
       todaysTrains: [],
       selectedStation: null,
-      filteredData: [],
       arrivalData: [],
       departureData: [],
       tabIndex: 0 // 0 = arrivals, 1 = departures
-    }
-  }
-
-  handleInputChange = (selectedStation) => {
-    this.setState({
-      selectedStation
-    });
-    if (selectedStation) {
-      this.filterData(selectedStation);
     }
   }
 
@@ -45,6 +34,15 @@ class App extends Component {
 
   componentDidUpdate() {
     document.title = this.props.t('title');
+  }
+
+  handleInputChange = (selectedStation) => {
+    this.setState({
+      selectedStation
+    });
+    if (selectedStation) {
+      this.filterData(selectedStation);
+    }
   }
 
   fetchStations() {
@@ -153,7 +151,6 @@ class App extends Component {
         />
         <Tabs selectedIndex={tabIndex} onSelect={tabIndex => this.setState({ tabIndex })}>
           <TabList>
-              {/* <Tab>Saapuvat</Tab> */}
               <Tab>{t('Arrivals')}</Tab>
               <Tab>{t('Departures')}</Tab>
           </TabList>
