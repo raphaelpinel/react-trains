@@ -4,10 +4,7 @@ import { withTranslation } from 'react-i18next';
 import './App.css';
 import Header from './components/Header/Header';
 import SearchBar from './components/SearchBar/SearchBar';
-import WithLoading from './hoc/withLoading';
 import DataDisplay from './components/DataDisplay/DataDisplay';
-
-const DataDisplayWithLoading = WithLoading(DataDisplay);
 
 const API = 'https://rata.digitraffic.fi/api/v1/';
 
@@ -15,7 +12,6 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      isLoaded: false,
       error: null,
       stations: [], // needed as sometimes origin or destination isn't a passenger station
       passengerStations: [], //used for displaying suggestions in search input
@@ -28,60 +24,38 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.fetchStations();
-    this.fetchTodaysTrains();
+    this.fetchAll();
   }
 
   componentDidUpdate() {
-    document.title = this.props.t('title');
+    document.title = this.props.t('title'); // when user switches language
   }
 
   handleInputChange = (selectedStation) => {
-    this.setState({
-      selectedStation
-    });
-    if (selectedStation) {
-      this.filterData(selectedStation);
-    }
+    this.setState({selectedStation});
+    this.filterData(selectedStation);
   }
 
-  fetchStations() {
-    fetch(`${API}metadata/stations`)
-    .then(response => response.json())
-    .then(
-      data => { // the React Select component needs data in the format { value: xxx, label: yyy }
-        const stations = data.map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
-        const passengerStations = data.filter(station => station.passengerTraffic === true).map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
-        this.setState({ stations, passengerStations });  
-      }, 
-      error => {
-        this.setState({
-          error
-        });
+  fetchAll() {
+    const dateNow = new Date().toISOString().slice(0, 10); // format of type 2019-02-12
+    Promise.all([
+      fetch(`${API}metadata/stations`).then(response => response.json()),
+      fetch(`${API}trains/${dateNow}`).then(response => response.json())
+    ]).then(
+      allResponses => {
+      const stations = allResponses[0].map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
+      const passengerStations = allResponses[0].filter(station => station.passengerTraffic === true).map(station => ({ value: station.stationShortCode, label: station.stationName.includes(' asema') ? station.stationName.slice(0, -6) :  station.stationName}));
+      const todaysTrains = allResponses[1];
+      this.setState({stations, passengerStations, todaysTrains});
+      }, error => {
+      this.setState({error});
       }
     )
   }
-
-  fetchTodaysTrains() {
-    const dateNow = new Date().toISOString().slice(0, 10); // format of type 2019-02-12
-    fetch(`${API}trains/${dateNow}`)
-    .then(response => response.json())
-    .then(
-      data => {
-        this.setState({ todaysTrains: data, isLoaded: true });
-      },
-      error => {
-        this.setState({
-          isLoaded: true,
-          error
-        });
-      }
-    )   
-  }
-
+ 
   filterData(selectedStation) { 
-    const dateTimeNow = new Date().toJSON(); 
     const { todaysTrains, stations } = this.state;
+    const dateTimeNow = new Date().toJSON(); 
     const filteredData = todaysTrains.map((train => {
       const trainNumber = train.commuterLineID ? `Commuter train ${train.commuterLineID}` : `${train.trainType} ${train.trainNumber}`; //special case for Commuter trains who have their own ID
       const originShortCode = train.timeTableRows[0].stationShortCode; // the origin (Lähtöasema) is the first entry in the timeTable
@@ -138,38 +112,41 @@ class App extends Component {
   }
 
   render() {  
-    const { error, isLoaded, tabIndex, arrivalData, departureData } = this.state;
-    const { t, i18n } = this.props;
-    return (
-      <div className="App">
-        <Header/>
-        <SearchBar 
-        placeholder={t('Look for train station')}
-        noOptionsMessage={(inputValue) => 'Not found'}
-        options={this.state.passengerStations} 
-        onChange={this.handleInputChange} 
-        />
-        <Tabs selectedIndex={tabIndex} onSelect={tabIndex => this.setState({ tabIndex })}>
+    const {error, tabIndex, arrivalData, departureData, todaysTrains} = this.state;
+    const {t, i18n} = this.props;
+    const errorDisplay = <div className="error">{ error ? error.message : null }</div>;
+    const content = (todaysTrains.length === 0) ? <p className="loading">{t('Loading')}...</p> : (
+        <Tabs selectedIndex={tabIndex} onSelect={tabIndex => this.setState({tabIndex})}>
           <TabList>
               <Tab>{t('Arrivals')}</Tab>
               <Tab>{t('Departures')}</Tab>
           </TabList>
           <TabPanel>
-            <DataDisplayWithLoading
-            isLoaded={isLoaded} 
+            <DataDisplay
             display='arrival' 
             filteredData={arrivalData} 
             />   
-            <div className="error">{ error ? error.message : null }</div>
+            {errorDisplay}
           </TabPanel>
           <TabPanel>
-            <DataDisplayWithLoading 
-            isLoaded={isLoaded}  
+            <DataDisplay
             display='departure' 
             filteredData={departureData} 
             />   
+            {errorDisplay}
           </TabPanel>
         </Tabs>
+      );
+    return (
+      <div className="App">
+        <Header/>
+        <SearchBar 
+        placeholder={t('Look for train station')}
+        noOptionsMessage={(inputValue) => t('Not found')}
+        options={this.state.passengerStations} 
+        onChange={this.handleInputChange} 
+        />
+        {content}
       </div>
     );
   }
