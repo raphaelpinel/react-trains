@@ -7,7 +7,7 @@ const formatTime = (dateTime) => { //returns a time in the correct timezone
   }
 
 const DataDisplay = props => {
-    const { t, i18n } = useTranslation();
+    const {t} = useTranslation();
     const filteredData = props.filteredData
         .sort((a, b) => (a.scheduledTime > b.scheduledTime) ? 1 : -1) // sorting by time
         .map(train => ({...train, time: (train.actualTime && formatTime(train.actualTime) !== formatTime(train.scheduledTime)) ?  //only if actual and scheduled arrival time differ, create special class (red) for actual time

@@ -113,7 +113,7 @@ class App extends Component {
 
   render() {  
     const {error, tabIndex, arrivalData, departureData, todaysTrains} = this.state;
-    const {t, i18n} = this.props;
+    const {t} = this.props;
     const errorDisplay = <div className="error">{ error ? error.message : null }</div>;
     const content = (todaysTrains.length === 0) ? <p className="loading">{t('Loading')}...</p> : (
         <Tabs selectedIndex={tabIndex} onSelect={tabIndex => this.setState({tabIndex})}>
