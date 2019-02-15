@@ -28,7 +28,7 @@
 }
 
 .react-tabs__tab {
-  width: 62px;
+  min-width: 62px;
   display: inline-block;
   border: 1px solid transparent;
   border-bottom: none;
