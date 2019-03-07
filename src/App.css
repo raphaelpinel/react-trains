@@ -1,6 +1,6 @@
 .App {
   font-size: 14px;
-  }
+}
 
 .loading {
   margin: 20px 50px;
@@ -23,7 +23,7 @@
   border-bottom: 1px solid #ccc;
   margin: 0 0 10px;
   padding: 0;
-  color: #59A127;
+  color: #59a127;
   font-weight: 500;
 }
 
@@ -58,7 +58,7 @@
 }
 
 .react-tabs__tab:focus:after {
-  content: "";
+  content: '';
   position: absolute;
   height: 5px;
   left: -4px;
@@ -74,4 +74,3 @@
 .react-tabs__tab-panel--selected {
   display: block;
 }
-
